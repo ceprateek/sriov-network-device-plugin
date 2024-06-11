@@ -33,3 +33,8 @@ $ docker run -it -v /var/lib/kubelet/:/var/lib/kubelet/ -v /sys/class/net:/sys/c
 ```
 
 Originally inspired by and is a portmanteau of the [Flannel daemonset](https://github.com/coreos/flannel/blob/master/Documentation/kube-flannel.yml), the [Calico Daemonset](https://github.com/projectcalico/calico/blob/master/v2.0/getting-started/kubernetes/installation/hosted/k8s-backend-addon-manager/calico-daemonset.yaml), and the [Calico CNI install bash script](https://github.com/projectcalico/cni-plugin/blob/be4df4db2e47aa7378b1bdf6933724bac1f348d0/k8s-install/scripts/install-cni.sh#L104-L153).
+
+
+### RIC build
+docker build . -f images/Dockerfile.base -t harbor-ric-airgap.eng.vmware.com/ric-ci/prateekg2/builder:0.0.0
+docker build . -f images/Dockerfile -t harbor-ric-airgap.eng.vmware.com/ric-ci/prateekg2/sriov:0.0.0

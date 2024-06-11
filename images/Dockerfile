@@ -1,29 +1,39 @@
-FROM golang:1.18-alpine as builder
+FROM harbor-ric-airgap.eng.vmware.com/ric-ci/prateekg2/builder:0.0.0 as builder
 
+# Copy the current app source
 COPY . /usr/src/sriov-network-device-plugin
-ADD images/ddptool-1.0.1.12.tar.gz /tmp/ddptool/
-
-ENV HTTP_PROXY $http_proxy
-ENV HTTPS_PROXY $https_proxy
-RUN apk add --no-cache --virtual build-dependencies build-base linux-headers git
 
 WORKDIR /usr/src/sriov-network-device-plugin
+
+# Add the go binary to the PATH to ensure the right version of Go is used
+ENV PATH="/usr/local/go/bin:${PATH}"
 RUN make clean && \
     make build
 
+# Build ddptool
 WORKDIR /tmp/ddptool
 RUN make
 
-FROM alpine:3
-RUN apk add --no-cache hwdata-pci
+# Build hwdata
+WORKDIR /tmp/hwdata
+RUN make || true && make
+
+# Use photon3:20230902 for the final image
+FROM photonos-docker-local.artifactory.eng.vmware.com/photon3:20240609-linux-amd64
+
+# Since hwdata isn't available in Photon OS's repos, we'll copy it from our build stage
+COPY --from=builder /tmp/hwdata/ /usr/local/hwdata/
 COPY --from=builder /usr/src/sriov-network-device-plugin/build/sriovdp /usr/bin/
 COPY --from=builder /tmp/ddptool/ddptool /usr/bin/
-WORKDIR /
 
+# Setup the working directory and labels
+WORKDIR /
 LABEL io.k8s.display-name="SRIOV Network Device Plugin"
 
+# Copy entrypoint script
 COPY ./images/entrypoint.sh /
 
-RUN rm -rf /var/cache/apk/*
+# Cleanup
+RUN rm -rf /var/cache/tdnf/*
 
 ENTRYPOINT ["/entrypoint.sh"]
