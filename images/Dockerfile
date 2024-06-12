@@ -19,7 +19,9 @@ WORKDIR /tmp/hwdata
 RUN make || true && make
 
 # Use photon3:20230902 for the final image
-FROM photonos-docker-local.artifactory.eng.vmware.com/photon3:20240609-linux-amd64
+FROM tcx-docker-local.artifactory.eng.vmware.com/release/images/photon4-baseimage:3.1.9-482
+
+RUN tdnf update -y && tdnf install -y gawk
 
 # Since hwdata isn't available in Photon OS's repos, we'll copy it from our build stage
 COPY --from=builder /tmp/hwdata/ /usr/local/hwdata/
@@ -36,4 +38,5 @@ COPY ./images/entrypoint.sh /
 # Cleanup
 RUN rm -rf /var/cache/tdnf/*
 
-ENTRYPOINT ["/entrypoint.sh"]
+# ENTRYPOINT ["/entrypoint.sh"]
+CMD [ "sh", "-c", "sleep 3600" ]

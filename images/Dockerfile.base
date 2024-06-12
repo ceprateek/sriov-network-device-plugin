@@ -1,4 +1,4 @@
-FROM photonos-docker-local.artifactory.eng.vmware.com/photon3:20240609-linux-amd64 as builder-base
+FROM tcx-docker-local.artifactory.eng.vmware.com/release/images/photon4-baseimage:3.1.9-482 as builder-base
 
 # Installing Go
 COPY images/go1.18.10.linux-amd64.tar.gz /tmp/
