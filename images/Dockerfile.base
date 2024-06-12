@@ -4,10 +4,6 @@ FROM tcx-docker-local.artifactory.eng.vmware.com/release/images/photon4-baseimag
 COPY images/go1.18.10.linux-amd64.tar.gz /tmp/
 RUN rm -rf /usr/local/go && tar -C /usr/local -xzf /tmp/go1.18.10.linux-amd64.tar.gz
 
-# # Setting up Proxies
-# ENV HTTP_PROXY $http_proxy
-# ENV HTTPS_PROXY $https_proxy
-
 # Install the necessary dependencies
 RUN tdnf update -y && \
     tdnf install -y git make gcc glibc-devel binutils gawk linux-api-headers
@@ -17,3 +13,4 @@ ADD images/ddptool-1.0.1.12.tar.gz /tmp/ddptool/
 
 # Clone the hwdata repo
 RUN git clone https://github.com/vcrhonek/hwdata.git /tmp/hwdata
+RUN git clone --depth 1 --single-branch v0.380 https://github.com/vcrhonek/hwdata.git /tmp/hwdata

@@ -1,4 +1,18 @@
-FROM harbor-ric-airgap.eng.vmware.com/ric-ci/prateekg2/builder:0.0.0 as builder
+FROM tcx-docker-local.artifactory.eng.vmware.com/release/images/photon4-baseimage:3.1.9-482 as builder
+
+# Installing Go
+COPY images/go1.18.10.linux-amd64.tar.gz /tmp/
+RUN rm -rf /usr/local/go && tar -C /usr/local -xzf /tmp/go1.18.10.linux-amd64.tar.gz
+
+# Install the necessary dependencies
+RUN tdnf update -y && \
+    tdnf install -y git make gcc glibc-devel binutils gawk linux-api-headers
+
+# Add the ddptool
+ADD images/ddptool-1.0.1.12.tar.gz /tmp/ddptool/
+
+# Clone the hwdata repo
+RUN git clone --depth 1 --branch v0.380 https://github.com/vcrhonek/hwdata.git /tmp/hwdata
 
 # Copy the current app source
 COPY . /usr/src/sriov-network-device-plugin
@@ -18,7 +32,6 @@ RUN make
 WORKDIR /tmp/hwdata
 RUN make || true && make
 
-# Use photon3:20230902 for the final image
 FROM tcx-docker-local.artifactory.eng.vmware.com/release/images/photon4-baseimage:3.1.9-482
 
 RUN tdnf update -y && tdnf install -y gawk
