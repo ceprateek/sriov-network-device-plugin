@@ -51,5 +51,4 @@ COPY ./images/entrypoint.sh /
 # Cleanup
 RUN rm -rf /var/cache/tdnf/*
 
-# ENTRYPOINT ["/entrypoint.sh"]
-CMD [ "sh", "-c", "sleep 3600" ]
+ENTRYPOINT ["/entrypoint.sh"]
